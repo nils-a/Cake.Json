@@ -3,6 +3,7 @@ using Cake.Core;
 using Cake.Core.IO;
 using Cake.Core.Tooling;
 using Cake.Testing;
+using Moq;
 using Path = System.IO.Path;
 using NSubstitute;
 
@@ -23,14 +24,14 @@ namespace Cake.Json.Tests
             var fileSystem = new FakeFileSystem(environment);
             var globber = new Globber(fileSystem, environment);
             log = new FakeLog();
-            var args = new FakeCakeArguments();
+            var args = new Mock<ICakeArguments>();
             var registry = new WindowsRegistry();
 
             var config = new FakeConfiguration();
-            var tools = new ToolLocator(environment, new ToolRepository(environment), new ToolResolutionStrategy(fileSystem, environment, globber, config));
+            var tools = new ToolLocator(environment, new ToolRepository(environment), new ToolResolutionStrategy(fileSystem, environment, globber, config, log));
             var processRunner = new ProcessRunner(fileSystem, environment, log, tools, config);
             var data = Substitute.For<ICakeDataService>();
-            context = new CakeContext(fileSystem, environment, globber, log, args, processRunner, registry, tools, data, config);
+            context = new CakeContext(fileSystem, environment, globber, log, args.Object, processRunner, registry, tools, data, config);
             context.Environment.WorkingDirectory = testsDir;
         }
 
